@@ -1,14 +1,8 @@
-#include<iostream> 
 
+#include<bits/stdc++.h>
 #include <string>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include<assert.h>
-#include <cmath>
 #include <chrono>
 #include <thread>
-// #include "./utils/Pixel.cpp"
 
 
 #include "./BMPController.cpp"
@@ -16,16 +10,26 @@
 
 using namespace std;
 int main(int argc, char* argv[]) {
-    // PARA CORRER
-    //./A [NOMBRE_ARCHIVO_LECTURA] [NOMBRE_ARCHIVO_ESCRITURA] [ID] [DATE]
-    //./A ../img/raw/boat.bmp ../img/encoded/compressedImg.juan 10101 2024-04-07T23:09:15Z
-
-    BMPController prueba = BMPController();
-    vector<vector<Pixel>> pict = prueba.leerArchivoBMP(argv[1]);
-    int rows = pict.size(), cols = pict[0].size();
-
-    JuanController writer = JuanController();
-    writer.write(pict, argv[2], argv[3], argv[4]);
     
+    /***
+     * ENCODE
+     * ./A [TIPO] [NOMBRE_ARCHIVO_LECTURA] [NOMBRE_ARCHIVO_ESCRITURA] [ID] [DATE]
+     * ./A encode ../img/raw/boat.bmp ../img/encoded/compressedImg.juan 10101 2024-04-07T23:09:15Z 
+     * 
+     * 
+     * DECODE
+     * ./A [TIPO] [NOMBRE_ARCHIVO_COMPRIMIDO] [NOMBRE_ARCHIVO_RAW]
+     * ./A decode ../img/encoded/compressedImg.juan ../img/raw/boat2.bmp
+    */
+    BMPController bmpController = BMPController();
+    JuanController juanController = JuanController();
+    if(argv[1][0] == 'e'){
+        vector<vector<Pixel>> pict = bmpController.leerArchivoBMP(argv[2]);
+        int rows = pict.size(), cols = pict[0].size();
+        juanController.write(pict, argv[3], argv[4], argv[5]);
+    }else{
+        auto [matrix, id, date] = juanController.read(argv[2]);
+        bmpController.guardarMatrizEnBMP(argv[3],matrix);
+    }
     return 0;
 }
