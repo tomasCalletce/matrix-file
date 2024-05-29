@@ -1,5 +1,5 @@
-// #include <iostream>
-// #include <string>
+#include <iostream>
+#include <string>
 
 #include<bits/stdc++.h>
 
@@ -9,10 +9,10 @@
 using namespace std;
 
  struct Token {
-        int distance;
-        int length;
-        char nextChar;
-    };
+    int distance;
+    int length;
+    char nextChar;
+};
 
 struct LZ77{
     string compFileName;
@@ -20,6 +20,24 @@ struct LZ77{
     const int lookaheadBuffer = 15; // Tamaño del buffer de búsqueda adelantada
     LZ77(){}
     // LZ77(string compFileName): compFileName(compFileName){}
+
+
+    Token readToken(ifstream& inputFile) {
+        Token token;
+        inputFile.read(reinterpret_cast<char*>(&token), sizeof(Token));
+        return token;
+    }
+
+    vector<Token> readFile(string fileName) {
+        ifstream inputFile(fileName, ios::binary);
+        vector<Token> tokens;
+        while (inputFile.peek() != EOF) {
+            Token token = readToken(inputFile);
+            tokens.push_back(token);
+        }
+        inputFile.close();
+        return tokens;
+    }
 
     void  compress(string outputFileName, string input){
          ofstream outputFile(outputFileName, ios::binary);

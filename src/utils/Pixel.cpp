@@ -16,7 +16,7 @@ struct Pixel {
         return Pixel{((int)blue ^ a[0]), ((int)green ^ a[1]), ((int)red ^ a[2])};
     }
 
-    static std::string pictToString(const std::vector<std::vector<Pixel>>& pict) {
+    static std::string pixToString(const std::vector<std::vector<Pixel>>& pict) {
         std::string result;
         for (const auto& row : pict) {
             for (const auto& pixel : row) {
@@ -27,4 +27,17 @@ struct Pixel {
         }
         return result;
     }
+
+    static std::string stringToPix(const std::vector<std::vector<Pixel>>& pict) {
+        std::string result;
+        for (const auto& row : pict) {
+            for (const auto& pixel : row) {
+                result += static_cast<char>(pixel.blue);
+                result += static_cast<char>(pixel.green);
+                result += static_cast<char>(pixel.red);
+            }
+        }
+        return result;
+    }
+
 };
