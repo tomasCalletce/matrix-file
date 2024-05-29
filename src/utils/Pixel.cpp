@@ -1,8 +1,8 @@
 #include <vector>
 #include <string>
+#define d(x) cerr<<#x<<" "<<x<<endl
 
 using namespace std;
-
 struct Pixel {
     unsigned char blue;
     unsigned char green;
@@ -16,28 +16,36 @@ struct Pixel {
         return Pixel{((int)blue ^ a[0]), ((int)green ^ a[1]), ((int)red ^ a[2])};
     }
 
-    static std::string pixToString(const std::vector<std::vector<Pixel>>& pict) {
-        std::string result;
-        for (const auto& row : pict) {
-            for (const auto& pixel : row) {
-                result += static_cast<char>(pixel.blue);
-                result += static_cast<char>(pixel.green);
-                result += static_cast<char>(pixel.red);
-            }
-        }
+    bool operator==(Pixel pix){
+        return blue == pix.blue &&  green == pix.green && red == pix.red;
+    }
+    
+
+    string toString() {
+        string result;
+        result += static_cast<char>(blue);
+        result += static_cast<char>(green);
+        result += static_cast<char>(red);
+
         return result;
     }
 
-    static std::string stringToPix(const std::vector<std::vector<Pixel>>& pict) {
-        std::string result;
-        for (const auto& row : pict) {
-            for (const auto& pixel : row) {
-                result += static_cast<char>(pixel.blue);
-                result += static_cast<char>(pixel.green);
-                result += static_cast<char>(pixel.red);
-            }
-        }
-        return result;
+    static Pixel stringToPix(string pixel) {
+        return Pixel(
+            static_cast<unsigned char>(pixel[0]),
+            static_cast<unsigned char>(pixel[1]),
+            static_cast<unsigned char>(pixel[2])
+        );
     }
 
+    static vector<vector<Pixel>> toMatrix(string text, int rows, int cols){
+        assert(text.size() % 3 == 0);
+        vector<vector<Pixel>> matrix(rows, vector<Pixel> (cols));
+        for(int i = 0, k = 0; i < rows; ++i){
+            for(int j = 0; j < cols && k < text.size(); ++j, k+=3){
+                matrix[i][j] = stringToPix(text.substr(k,3));
+            }
+        }
+        return matrix;
+    }
 };

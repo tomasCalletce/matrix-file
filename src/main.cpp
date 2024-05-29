@@ -30,9 +30,12 @@ int main(int argc, char* argv[]) {
         vector<vector<Pixel>> pict = bmpController.leerArchivoBMP(argv[2]);
         int rows = pict.size(), cols = pict[0].size();
         juanController.write(fileEncoder.encode(pict), argv[3], argv[4], argv[5]);
+        // juanController.write(pict, argv[3], argv[4], argv[5]);
     }else{
-        auto [matrix, id, date] = juanController.read(argv[2]);
+        auto [decompressed, id, date, rows, cols] = juanController.read(argv[2]);
+        vector<vector<Pixel>> matrix = Pixel::toMatrix(decompressed, rows, cols);
         bmpController.guardarMatrizEnBMP(argv[3], fileEncoder.decode(matrix));
+        // bmpController.guardarMatrizEnBMP(argv[3], matrix);
     }
     return 0;
 }

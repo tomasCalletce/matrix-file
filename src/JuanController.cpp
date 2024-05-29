@@ -3,11 +3,32 @@
 #include <vector>
 #include <cstring> 
 #include <tuple>
-
+#define el '\n'
+#define d(x) cerr<<#x<<" "<<x<<el
+#define sz(a) (int) a.size()
 using namespace std;
+
+
+ struct Token {
+    int distance;
+    int length;
+    char nextChar;
+};
+
 
 class JuanController {
 public:
+    string compFileName;
+    const int windowSize = 4096; // Tamaño de la ventana deslizante
+    const int lookaheadBuffer = 15; // Tamaño del buffer de búsqueda adelantada
+    void  compress(string outputFileName, string input);
+    Token readToken(ifstream& inputFile) {
+        Token token;
+        inputFile.read(reinterpret_cast<char*>(&token), sizeof(Token));
+        return token;
+    }
+
+
     void write(const std::vector<std::vector<Pixel>>& pict, const char* fileName, const char* id, const char* date) {
         std::ofstream outFile(fileName, std::ios::binary);
         if (!outFile) {
@@ -24,18 +45,74 @@ public:
 
         outFile.write(date, 20);
 
+        string image = "";
         for (const auto& row : pict) {
-            for (const auto& pixel : row) {
-                outFile.write(reinterpret_cast<const char*>(&pixel.blue), sizeof(pixel.blue));
-                outFile.write(reinterpret_cast<const char*>(&pixel.green), sizeof(pixel.green));
-                outFile.write(reinterpret_cast<const char*>(&pixel.red), sizeof(pixel.red));
+            for (auto pixel : row) {
+               image += pixel.toString();
+               assert(pixel == Pixel::stringToPix(pixel.toString()));
             }
         }
-
+        compress(outFile, image);
         outFile.close();
     }
-    
-    tuple<vector<vector<Pixel>>, char*, char*> read(const char* pathname) {
+
+    string decompress(vector<Token> tokens){
+        string s = "";
+        for(Token token : tokens){
+            if(token.distance){
+                s += s.substr(sz(s) - token.distance, token.length);
+            }
+            s += token.nextChar;
+        }
+        return s;
+    }
+
+    vector<Token> search(int &start, string input){
+        int end = min(start + lookaheadBuffer, sz(input) );
+        vector<Token> tokens;
+
+        while (start < end) {
+            int bestMatchDistance = 0;
+            int bestMatchLength = 0;
+            char bestMatchChar = input[start + bestMatchLength];
+
+            for (int i = max(0, start - windowSize); i < start; ++i) {
+                int j = start;
+                int length = 0;
+                while (j < end - 1 && i + length < start && input[i + length] == input[j]) {
+                    ++j;
+                    ++length;
+                }
+
+                if (length > bestMatchLength) {
+                    bestMatchDistance = start - i;
+                    bestMatchLength = length;
+                    bestMatchChar = input[j];
+                }
+            }
+
+            tokens.push_back({bestMatchDistance, bestMatchLength, bestMatchChar});
+            start += (bestMatchLength + 1);
+        }
+        
+        return tokens;
+    }
+
+    void  compress(ofstream &outFile, string input){
+        int currentIndex = 0;
+        // d(input);
+        vector<Token> szs;
+        while(currentIndex < sz(input)){
+            vector<Token> tokens = search(currentIndex, input);
+             for(Token token : tokens){
+                szs.push_back(token);
+                outFile.write(reinterpret_cast<const char*>(&token), sizeof(Token));
+            }
+        }
+        
+    }
+
+    tuple<string, char*, char*, uint16_t, uint16_t> read(const char* pathname) {
         std::ifstream inFile(pathname, std::ios::binary);
         if (!inFile) {
             throw std::runtime_error("Failed to open file for reading");
@@ -54,18 +131,15 @@ public:
         char* date = new char[21]; 
         inFile.read(date, 20);
         date[20] = '\0'; 
-
-        vector<vector<Pixel>> matrix(rows, vector<Pixel>(cols));
-        for (auto& row : matrix) {
-            for (auto& pixel : row) {
-                inFile.read(reinterpret_cast<char*>(&pixel.blue), sizeof(pixel.blue));
-                inFile.read(reinterpret_cast<char*>(&pixel.green), sizeof(pixel.green));
-                inFile.read(reinterpret_cast<char*>(&pixel.red), sizeof(pixel.red));
-            }
+        
+        vector<Token> tokens;
+        while (inFile.peek() != EOF) {
+            Token token = readToken(inFile);
+            tokens.push_back(token);
         }
-
         inFile.close();
 
-        return make_tuple(matrix, id, date);
+        
+        return make_tuple(decompress(tokens), id, date, rows, cols);
     }
 };
