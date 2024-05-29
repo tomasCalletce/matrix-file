@@ -13,7 +13,7 @@ public:
         if (!outFile) {
             throw std::runtime_error("Failed to open file for writing");
         }
-        
+
         uint16_t rows = static_cast<uint16_t>(pict.size());
         outFile.write(reinterpret_cast<const char*>(&rows), sizeof(rows));
 

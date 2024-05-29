@@ -3,10 +3,12 @@
 #include <string>
 #include <chrono>
 #include <thread>
-
-
 #include "./BMPController.cpp"
+
+
 #include "./JuanController.cpp"
+#include "./FileEncoder.cpp"
+
 
 using namespace std;
 int main(int argc, char* argv[]) {
@@ -23,13 +25,14 @@ int main(int argc, char* argv[]) {
     */
     BMPController bmpController = BMPController();
     JuanController juanController = JuanController();
+    FileEncoder fileEncoder = FileEncoder();
     if(argv[1][0] == 'e'){
         vector<vector<Pixel>> pict = bmpController.leerArchivoBMP(argv[2]);
         int rows = pict.size(), cols = pict[0].size();
-        juanController.write(pict, argv[3], argv[4], argv[5]);
+        juanController.write(fileEncoder.encode(pict), argv[3], argv[4], argv[5]);
     }else{
         auto [matrix, id, date] = juanController.read(argv[2]);
-        bmpController.guardarMatrizEnBMP(argv[3],matrix);
+        bmpController.guardarMatrizEnBMP(argv[3], fileEncoder.decode(matrix));
     }
     return 0;
 }

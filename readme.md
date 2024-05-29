@@ -8,7 +8,7 @@ To decode an image, use the following command format:
 
 <command> [NOMBRE_ARCHIVO_LECTURA] [NOMBRE_ARCHIVO_ESCRITURA] [ID] [DATE]
 
-`Example: /A encode ../img/raw/boat.bmp ../img/encoded/compressedImg.juan 10101 2024-04-07T23:09:15Z`
+`Example: ./A encode ../img/raw/boat.bmp ../img/encoded/compressedImg.juan 10101 2024-04-07T23:09:15Z`
 
 ### Decoding
 
