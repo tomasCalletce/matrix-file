@@ -26,11 +26,11 @@ public:
         return matrix;
     }
     vector<vector<Pixel>> decode(vector<vector<Pixel>> &matrix){
-        // for(auto &row : matrix){
-        //     for(auto &pix : row){
-        //         pix = pix ^ delta;
-        //     }
-        // }
+        for(auto &row : matrix){
+            for(auto &pix : row){
+                pix = pix ^ delta;
+            }
+        }
         return matrix;
     }
 };
